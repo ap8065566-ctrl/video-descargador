@@ -1,6 +1,5 @@
 
 import os
-import re
 import glob
 import socket
 import shutil
@@ -10,8 +9,7 @@ import ipaddress
 from urllib.parse import urlparse
 
 from flask import (
-    Flask, request, render_template_string,
-    send_file
+    Flask, request, render_template_string, send_file
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -32,17 +30,11 @@ HTML = """
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#100b1c">
-
 <title>VideoDescarga | Descarga tus vídeos</title>
-
-<meta name="description"
-content="VideoDescarga: herramienta para descargar vídeos
-de sitios compatibles cuando tengas autorización.">
+<meta name="description" content="VideoDescarga: herramienta para descargar contenido autorizado de sitios compatibles.">
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -68,9 +60,7 @@ header {
     letter-spacing: -.8px;
 }
 
-.logo span {
-    color: #b56aff;
-}
+.logo span { color: #b56aff; }
 
 .tag {
     color: #c8b6df;
@@ -101,9 +91,7 @@ h1 {
     line-height: 1.12;
 }
 
-h1 span {
-    color: #c17aff;
-}
+h1 span { color: #c17aff; }
 
 .subtitle {
     max-width: 540px;
@@ -149,17 +137,9 @@ button {
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    transition: .2s;
 }
 
-button:hover {
-    filter: brightness(1.12);
-    transform: translateY(-1px);
-}
-
-button:active {
-    transform: scale(.99);
-}
+button:hover { filter: brightness(1.12); }
 
 .hint {
     margin: 15px 0 0;
@@ -183,9 +163,6 @@ button:active {
     letter-spacing: 1px;
 }
 
-/* ESPACIO RESERVADO PARA PUBLICIDAD.
-   Insertar aquí el código del proveedor cuando apruebe el sitio. */
-
 .features {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -200,9 +177,7 @@ button:active {
     background: rgba(255,255,255,.035);
 }
 
-.feature .icon {
-    font-size: 25px;
-}
+.feature .icon { font-size: 25px; }
 
 .feature h3 {
     margin: 12px 0 7px;
@@ -221,9 +196,7 @@ section.info {
     text-align: left;
 }
 
-.info h2 {
-    font-size: 21px;
-}
+.info h2 { font-size: 21px; }
 
 .info p {
     color: #bdb2ca;
@@ -252,55 +225,35 @@ footer {
 }
 
 @media (max-width: 520px) {
-    header {
-        padding: 19px 5%;
-    }
-
-    main {
-        margin: 42px auto;
-    }
-
-    .download-card {
-        padding: 20px 15px;
-    }
-
-    .features {
-        grid-template-columns: 1fr;
-    }
-
-    .feature {
-        padding: 18px;
-    }
+    header { padding: 19px 5%; }
+    main { margin: 42px auto; }
+    .download-card { padding: 20px 15px; }
+    .features { grid-template-columns: 1fr; }
+    .feature { padding: 18px; }
 }
 </style>
 </head>
 
 <body>
-
 <header>
     <div class="logo">Video<span>Descarga</span></div>
     <div class="tag">DESCARGAS ONLINE</div>
 </header>
 
 <main>
-
     <div class="label">TU HERRAMIENTA DE VÍDEOS</div>
 
     <h1>Descarga tus vídeos <span>fácilmente</span></h1>
 
     <p class="subtitle">
         Pega el enlace de un vídeo de un sitio compatible
-        y descarga el archivo cuando tengas autorización.
+        y descarga el contenido cuando tengas autorización.
     </p>
 
-    <div class="ad-box">
-        ESPACIO PUBLICITARIO
-    </div>
+    <div class="ad-box">ESPACIO PUBLICITARIO</div>
 
     <div class="download-card">
-
         <form method="post" action="/download">
-
             <input
                 name="url"
                 type="url"
@@ -308,22 +261,16 @@ footer {
                 maxlength="2048"
                 required
             >
-
-            <button type="submit">
-                ↓ DESCARGAR VÍDEO
-            </button>
-
+            <button type="submit">↓ DESCARGAR VÍDEO</button>
         </form>
 
         <p class="hint">
-            Tamaño máximo: 100 MB · Procesamiento sujeto
-            a la compatibilidad del sitio.
+            Sin límite artificial de 100 MB.
+            Sujeto a los recursos del servidor y a la compatibilidad del sitio.
         </p>
-
     </div>
 
     <div class="features">
-
         <div class="feature">
             <div class="icon">⚡</div>
             <h3>Sencillo</h3>
@@ -341,38 +288,22 @@ footer {
             <h3>Protección</h3>
             <p>Validación de enlaces y límites de uso.</p>
         </div>
-
     </div>
 
-    <div class="ad-box">
-        ESPACIO PUBLICITARIO
-    </div>
+    <div class="ad-box">ESPACIO PUBLICITARIO</div>
 
     <section class="info">
         <h2>¿Cómo funciona?</h2>
-
-        <p>
-            1. Copia el enlace del vídeo que tienes
-            derecho a descargar.
-        </p>
-
-        <p>
-            2. Pégalo en el campo de descarga.
-        </p>
-
-        <p>
-            3. Pulsa el botón y espera a que termine
-            el procesamiento.
-        </p>
+        <p>1. Copia el enlace del contenido que tienes derecho a descargar.</p>
+        <p>2. Pégalo en el campo de descarga.</p>
+        <p>3. Pulsa el botón y espera a que termine el procesamiento.</p>
     </section>
 
     <div class="notice">
-        Utiliza VideoDescarga únicamente para contenido
-        propio, de dominio público o cuyo titular te haya
-        autorizado a descargar. No eludas restricciones
-        técnicas ni medidas de protección.
+        Utiliza VideoDescarga únicamente para contenido propio,
+        de dominio público o cuyo titular te haya autorizado.
+        No eludas restricciones técnicas ni medidas de protección.
     </div>
-
 </main>
 
 <footer>
@@ -380,11 +311,9 @@ footer {
     Herramienta de descarga para contenido autorizado.<br>
     © 2026 VideoDescarga
 </footer>
-
 </body>
 </html>
 """
-
 
 MESSAGE_HTML = """
 <!DOCTYPE html>
@@ -484,7 +413,6 @@ def home():
 @app.route("/download", methods=["POST"])
 @limiter.limit("3 per minute")
 def download():
-
     url = request.form.get("url", "").strip()
 
     if len(url) > 2048 or not valid_url(url):
@@ -496,13 +424,12 @@ def download():
     folder = tempfile.mkdtemp(prefix="video_")
 
     try:
-
         command = [
             "yt-dlp",
             "--no-playlist",
-            "--max-filesize", "100M",
-            "--socket-timeout", "15",
-            "--retries", "1",
+            "--socket-timeout", "20",
+            "--retries", "2",
+            "--fragment-retries", "2",
             "--no-warnings",
             "-f", "best",
             "-o", os.path.join(folder, "video.%(ext)s"),
@@ -512,6 +439,7 @@ def download():
         subprocess.run(
             command,
             capture_output=True,
+            text=True,
             timeout=120,
             check=True
         )
@@ -525,7 +453,6 @@ def download():
 
         if not files:
             shutil.rmtree(folder, ignore_errors=True)
-
             return show_message(
                 "No se encontró ningún archivo descargable.",
                 404
@@ -546,30 +473,27 @@ def download():
         return response
 
     except subprocess.TimeoutExpired:
-
         shutil.rmtree(folder, ignore_errors=True)
-
         return show_message(
             "La descarga tardó demasiado. Inténtalo de nuevo.",
             408
         )
 
-    except subprocess.CalledProcessError:
-
+    except subprocess.CalledProcessError as error:
+        app.logger.error(
+            "yt-dlp error: %s",
+            (error.stderr or "")[-3000:]
+        )
         shutil.rmtree(folder, ignore_errors=True)
-
         return show_message(
             "No se pudo descargar. El sitio puede no ser compatible, "
-            "el archivo superar el límite o requerir autorización.",
+            "requerir autorización o haber rechazado la solicitud.",
             400
         )
 
     except Exception:
-
         shutil.rmtree(folder, ignore_errors=True)
-
         app.logger.exception("Error procesando la descarga")
-
         return show_message(
             "Se produjo un error al procesar el vídeo.",
             500
@@ -581,4 +505,3 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 10000))
     )
-
