@@ -1,5 +1,4 @@
-
 Flask
-yt-dlp
+yt-dlp[default]
 gunicorn
 Flask-Limiter
