@@ -23,6 +23,9 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
+MAX_FILE_SIZE = "1G"
+DOWNLOAD_TIMEOUT = 600
+
 HTML = """
 <!DOCTYPE html>
 <html lang="es">
@@ -265,7 +268,7 @@ footer {
         </form>
 
         <p class="hint">
-            Sin límite artificial de 100 MB.
+            Tamaño máximo: 1 GB.
             Sujeto a los recursos del servidor y a la compatibilidad del sitio.
         </p>
     </div>
@@ -380,12 +383,15 @@ def valid_url(url):
         if parsed.username or parsed.password:
             return False
 
+        if parsed.port not in (None, 443):
+            return False
+
         if host == "localhost" or host.endswith(".localhost"):
             return False
 
         addresses = socket.getaddrinfo(
             host,
-            parsed.port or 443,
+            443,
             type=socket.SOCK_STREAM
         )
 
@@ -426,10 +432,12 @@ def download():
     try:
         command = [
             "yt-dlp",
+            "--ignore-config",
             "--no-playlist",
-            "--socket-timeout", "20",
-            "--retries", "2",
-            "--fragment-retries", "2",
+            "--max-filesize", MAX_FILE_SIZE,
+            "--socket-timeout", "30",
+            "--retries", "3",
+            "--fragment-retries", "3",
             "--no-warnings",
             "-f", "best",
             "-o", os.path.join(folder, "video.%(ext)s"),
@@ -440,7 +448,7 @@ def download():
             command,
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=DOWNLOAD_TIMEOUT,
             check=True
         )
 
@@ -475,7 +483,8 @@ def download():
     except subprocess.TimeoutExpired:
         shutil.rmtree(folder, ignore_errors=True)
         return show_message(
-            "La descarga tardó demasiado. Inténtalo de nuevo.",
+            "La descarga tardó demasiado. El servidor puede no soportar "
+            "archivos tan grandes. Inténtalo de nuevo.",
             408
         )
 
@@ -486,8 +495,8 @@ def download():
         )
         shutil.rmtree(folder, ignore_errors=True)
         return show_message(
-            "No se pudo descargar. El sitio puede no ser compatible, "
-            "requerir autorización o haber rechazado la solicitud.",
+            "No se pudo descargar. Comprueba que el sitio sea compatible "
+            "y que tengas autorización para descargar el contenido.",
             400
         )
 
